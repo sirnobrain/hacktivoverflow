@@ -22,7 +22,7 @@ let userSchema = new Schema({
 });
 
 userSchema.pre('save', function(next) {
-  bcrypt.hashSync(this.password, 10)
+  bcrypt.hash(this.password, 10)
   .then(hashedPassword => {
     this.password = hashedPassword;
     next();
