@@ -14,11 +14,10 @@ let userSchema = new Schema({
   password: {
     type: String,
     required: true
-  },
-  created_at: {
-    type: Date,
-    default: Date.now
   }
+},
+{
+  timestamps: true
 });
 
 userSchema.plugin(uniqueValidator);
