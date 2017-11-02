@@ -10,6 +10,7 @@ class Auth {
 
     models.User.create(signupUser)
     .then(userCreated => {
+      console.log(userCreated);
       const jwtoken = generateJwtoken(userCreated);
       const payload = { username: userCreated.username, jwtoken: jwtoken };
       const resp = generateResponse(200, 'user created', payload, null);
@@ -23,7 +24,18 @@ class Auth {
     });
   }
 
-  static signin(req, res) {}
+  static signin(req, res) {
+    const jwtoken = generateJwtoken(req.headers.user);
+    const payload = { username: req.headers.username, jwtoken: jwtoken };
+    const resp = generateResponse(200, 'user signed in', payload, null);
+
+    res.status(resp.status).send(resp);
+  }
+
+  static verify(req, res) {
+    const resp = generateResponse(200, 'verified', req.headers.user, null);
+    res.status(200).send(resp);
+  }
 }
 
 module.exports = Auth;
