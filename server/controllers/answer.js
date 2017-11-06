@@ -7,7 +7,7 @@ class Answer {
   static create(req, res) {
     const answer = {
       author: req.headers.user._id,
-      question: req.body.question_id,
+      question: req.params.questionid,
       text: req.body.text,
       upvote: [],
       downvote: []
