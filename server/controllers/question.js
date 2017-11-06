@@ -50,7 +50,7 @@ class Question {
   }
 
   static update(req, res) {
-    const options = {_id: req.params.id};
+    const options = {_id: req.params.id, author: req.headers.user._id};
     const value = req.body;
 
     models.Question.updateOne(options, value).exec()
@@ -64,8 +64,23 @@ class Question {
     });
   }
 
+  static vote(req, res) {
+    const options = {_id: req.params.id};
+    const votes = { upvote: req.body.upvote, downvote: req.body.downvote }
+
+    models.Question.updateOne(options, value).exec()
+    .then(updated => {
+      const resp = generateResponse(200, 'update question vote', updated, null);
+      res.status.send(resp);
+    })
+    .catch(err => {
+      const resp = generateResponse(500, 'failed to update question vote', null, err);
+      res.status.send(resp);
+    })
+  }
+
   static destroy(req, res) {
-    models.Question.deleteOne({_id: req.params.id})
+    models.Question.deleteOne({_id: req.params.id, author: req.headers.user._id})
     .then(destroyed => {
       const resp = generateResponse(200, 'question destroyed', destroyed, null);
       res.status(200).send(resp);
