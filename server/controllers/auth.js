@@ -12,7 +12,7 @@ class Auth {
     .then(userCreated => {
       console.log(userCreated);
       const jwtoken = generateJwtoken(userCreated);
-      const payload = { username: userCreated.username, jwtoken: jwtoken };
+      const payload = { _id: userCreated._id, username: userCreated.username, jwtoken: jwtoken };
       const resp = generateResponse(200, 'user created', payload, null);
 
       res.status(resp.status).send(resp);
@@ -26,7 +26,7 @@ class Auth {
 
   static signin(req, res) {
     const jwtoken = generateJwtoken(req.headers.user);
-    const payload = { username: req.headers.username, jwtoken: jwtoken };
+    const payload = { _id: req.headers.user._id, username: req.headers.user.username, jwtoken: jwtoken };
     const resp = generateResponse(200, 'user signed in', payload, null);
 
     res.status(resp.status).send(resp);
