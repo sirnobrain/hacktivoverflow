@@ -14,7 +14,9 @@ router.get('/:id', controllers.Question.read);
 
 router.put('/:id', verifyToken, controllers.Question.update);
 
-router.put('/vote/:id', verifyToken, controllers.Question.vote);
+router.put('/upvote/:id', verifyToken, controllers.Question.upvote);
+
+router.put('/downvote/:id', verifyToken, controllers.Question.downvote);
 
 router.delete('/:id', verifyToken, controllers.Question.destroy);
 

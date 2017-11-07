@@ -9,7 +9,7 @@ class Question {
       author: req.headers.user._id,
       title: req.body.title,
       text: req.body.text,
-      tags: req.body.tags ? req.body.tags : [],
+      tags: req.body.tags ? JSON.parse(req.body.tags) : [],
       upvote: [],
       downvote: []
     };
@@ -55,34 +55,71 @@ class Question {
 
     models.Question.updateOne(options, value).exec()
     .then(updated => {
-      const resp = generateResponse(200, 'update question', updated, null);
+      if (updated.n === 0) return Promise.reject('no question with current user as the author found');
+      return models.Question.findById(req.params.id);
+    })
+    .then(updatedQuestion => {
+      const resp = generateResponse(200, 'update question', updatedQuestion, null);
       res.status(200).send(resp);
     })
     .catch(err => {
       const resp = generateResponse(500, 'failed to update question', null, err);
-      res.status.send(resp);
+      res.status(200).send(resp);
     });
   }
 
-  static vote(req, res) {
-    const options = {_id: req.params.id};
-    const votes = { upvote: req.body.upvote, downvote: req.body.downvote }
+  static upvote(req, res) {
+    let updatedQuestion;
 
-    models.Question.updateOne(options, value).exec()
+    models.Question.findById(req.params.id)
+    .then(question => {
+      if (!question) return Promise.reject('no such question');
+      if (question.upvote.indexOf(req.headers.user._id) !== -1) return Promise.reject('you may not upvote twice');
+      if (question.downvote.indexOf(req.headers.user._id !== -1)) question.downvote.splice(question.downvote.indexOf(req.headers.user._id), 1);
+
+      question.upvote.push(req.headers.user._id)
+      updatedQuestion = question
+      return models.Question.updateOne({_id: question._id}, question)
+    })
     .then(updated => {
-      const resp = generateResponse(200, 'update question vote', updated, null);
-      res.status.send(resp);
+      const resp = generateResponse(200, 'update question vote', updatedQuestion, null);
+      res.status(200).send(resp);
     })
     .catch(err => {
       const resp = generateResponse(500, 'failed to update question vote', null, err);
-      res.status.send(resp);
+      res.status(200).send(resp);
+    })
+  }
+
+  static downvote(req, res) {
+    let updatedQuestion;
+
+    models.Question.findById(req.params.id)
+    .then(question => {
+      if (!question) return Promise.reject('no such question');
+      if (question.downvote.indexOf(req.headers.user._id) !== -1) return Promise.reject('you may not downvote twice');
+      if (question.upvote.indexOf(req.headers.user._id !== -1)) question.upvote.splice(question.downvote.indexOf(req.headers.user._id), 1);
+      
+      question.downvote.push(req.headers.user._id)
+      updatedQuestion = question
+      return models.Question.updateOne({_id: question._id}, question)
+    })
+    .then(updated => {
+      const resp = generateResponse(200, 'update question vote', updatedQuestion, null);
+      res.status(200).send(resp);
+    })
+    .catch(err => {
+      const resp = generateResponse(500, 'failed to update question vote', null, err);
+      res.status(200).send(resp);
     })
   }
 
   static destroy(req, res) {
     models.Question.deleteOne({_id: req.params.id, author: req.headers.user._id})
     .then(destroyed => {
-      const resp = generateResponse(200, 'question destroyed', destroyed, null);
+      if (destroyed.result.n === 0) return Promise.reject('no question with current user as the author found');
+      destroyed.result._id = req.params.id
+      const resp = generateResponse(200, 'question destroyed', destroyed.result, null);
       res.status(200).send(resp);
     })
     .catch(err => {
