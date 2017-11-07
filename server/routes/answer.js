@@ -6,12 +6,14 @@ const verifyToken = require('./../middlewares/verify-token');
 
 const router = express.Router();
 
-router.post('/:questionid', controllers.Answer.create);
+router.post('/:questionid', verifyToken, controllers.Answer.create);
 
 router.get('/:questionid', controllers.Answer.readQuestionAnswers);
 
-router.put('/:id', controllers.Answer.vote);
+router.put('/upvote/:id', verifyToken, controllers.Answer.upvote);
 
-router.delete('/:id', controllers.Answer.destroy);
+router.put('/downvote/:id', verifyToken, controllers.Answer.downvote);
+
+router.delete('/:id', verifyToken, controllers.Answer.destroy);
 
 module.exports = router;

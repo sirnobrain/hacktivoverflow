@@ -98,7 +98,7 @@ class Question {
     .then(question => {
       if (!question) return Promise.reject('no such question');
       if (question.downvote.indexOf(req.headers.user._id) !== -1) return Promise.reject('you may not downvote twice');
-      if (question.upvote.indexOf(req.headers.user._id !== -1)) question.upvote.splice(question.downvote.indexOf(req.headers.user._id), 1);
+      if (question.upvote.indexOf(req.headers.user._id !== -1)) question.upvote.splice(question.upvote.indexOf(req.headers.user._id), 1);
       
       question.downvote.push(req.headers.user._id)
       updatedQuestion = question
@@ -115,8 +115,9 @@ class Question {
   }
 
   static destroy(req, res) {
-    models.Question.deleteOne({_id: req.params.id, author: req.headers.user._id})
-    .then(destroyed => {
+    Promise.all([models.Question.deleteOne({_id: req.params.id, author: req.headers.user._id}), models.Answer.deleteMany({question: req.params.id})])
+    .then(vals => {
+      let destroyed = vals[0];
       if (destroyed.result.n === 0) return Promise.reject('no question with current user as the author found');
       destroyed.result._id = req.params.id
       const resp = generateResponse(200, 'question destroyed', destroyed.result, null);
