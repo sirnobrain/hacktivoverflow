@@ -10,7 +10,6 @@ class Auth {
 
     models.User.create(signupUser)
     .then(userCreated => {
-      console.log(userCreated);
       const jwtoken = generateJwtoken(userCreated);
       const payload = { _id: userCreated._id, username: userCreated.username, jwtoken: jwtoken };
       const resp = generateResponse(200, 'user created', payload, null);

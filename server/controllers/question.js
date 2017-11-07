@@ -17,7 +17,7 @@ class Question {
     models.Question.create(question)
     .then(questionCreated => {
       const resp = generateResponse(200, 'question created', questionCreated, null);
-      res.status.send(resp);
+      res.status(200).send(resp);
     })
     .catch(err => {
       const resp = generateResponse(500, 'failed to create question', null, err);
