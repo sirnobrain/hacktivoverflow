@@ -25,15 +25,10 @@ class Answer {
   }
 
   static readQuestionAnswers(req, res) {
-    models.Answer.find({question: req.params.questionid}).exec()
+    models.Answer.find({question: req.params.questionid}).populate('author').exec()
     .then(answers => {
-      if (answers.length === 0) {
-        const resp = generateResponse(200, 'no answers found', null, null);
-        res.status(200).send(resp);
-      } else {
-        const resp = generateResponse(200, 'read all answers', answers, null);
-        res.status(200).send(resp);
-      }
+      const resp = generateResponse(200, 'read all answers', answers, null);
+      res.status(200).send(resp);
     })
     .catch(err => {
       const resp = generateResponse(500, 'failed to read answers', null, err);
