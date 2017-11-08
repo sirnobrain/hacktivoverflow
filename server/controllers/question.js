@@ -9,7 +9,7 @@ class Question {
       author: req.headers.user._id,
       title: req.body.title,
       text: req.body.text,
-      tags: req.body.tags ? JSON.parse(req.body.tags) : [],
+      tags: req.body.tags ? req.body.tags.split(';') : [],
       upvote: [],
       downvote: []
     };
@@ -26,7 +26,7 @@ class Question {
   }
 
   static read(req, res) {
-    models.Question.findById(req.params.id).exec()
+    models.Question.findById(req.params.id).populate('author').exec()
     .then(question => {
       const resp = generateResponse(200, 'read question', question, null);
       res.status(200).send(resp);
@@ -38,7 +38,7 @@ class Question {
   }
 
   static readAll(req, res) {
-    models.Question.find().exec()
+    models.Question.find().populate('author').exec()
     .then(questions => {
       const resp = generateResponse(200, 'read all questions', questions, null);
       res.status(200).send(resp);
@@ -51,7 +51,9 @@ class Question {
 
   static update(req, res) {
     const options = {_id: req.params.id, author: req.headers.user._id};
-    const value = req.body;
+    let value = req.body;
+
+    value.tags ? value.tags = value.tags.split(';') : value.tags = [],
 
     models.Question.updateOne(options, value).exec()
     .then(updated => {
